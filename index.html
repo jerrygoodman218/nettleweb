@@ -20,6 +20,153 @@
 		<link rel="terms-of-service" href="https://nettleweb.com/terms" />
 		<title>NettleWeb</title>
 	</head>
+	<!-- ═══════════════════════════════════════════════════
+     BLUE OVERLAY — paste just before </body> in index.html
+     ═══════════════════════════════════════════════════ -->
+
+<style>
+  /* ── Button ──────────────────────────────────── */
+  #blue-btn {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 800;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: #07091a;
+    border: 1px solid #1e2460;
+    border-radius: 50px;
+    padding: 13px 32px;
+    cursor: pointer;
+
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    color: #c8d4f0;
+
+    box-shadow:
+      0 0 0 0 rgba(61,111,255,0),
+      0 8px 32px rgba(0,0,0,0.5);
+
+    transition:
+      border-color 0.25s,
+      color 0.25s,
+      box-shadow 0.25s,
+      transform 0.2s;
+  }
+
+  /* The glowing accent dot */
+  #blue-btn::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3d6fff;
+    box-shadow: 0 0 10px 3px rgba(61,111,255,0.6);
+    flex-shrink: 0;
+    transition: box-shadow 0.25s;
+  }
+
+  /* Styled "u" accent — matches the title */
+  #blue-btn .b-accent { color: #6b9fff; }
+
+  #blue-btn:hover {
+    border-color: #3d6fff;
+    color: #fff;
+    box-shadow:
+      0 0 0 6px rgba(61,111,255,0.12),
+      0 8px 40px rgba(61,111,255,0.3);
+    transform: translateX(-50%) translateY(-2px);
+  }
+  #blue-btn:hover::before {
+    box-shadow: 0 0 14px 5px rgba(61,111,255,0.9);
+  }
+
+  /* ── Fullscreen overlay ───────────────────────── */
+  #blue-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: #07091a;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  #blue-overlay.active {
+    display: block;
+  }
+  #blue-overlay.visible {
+    opacity: 1;
+  }
+
+  #blue-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+</style>
+
+<!-- The button -->
+<button id="blue-btn" type="button">
+  Bl<span class="b-accent">u</span>e
+</button>
+
+<!-- The fullscreen overlay -->
+<div id="blue-overlay">
+  <iframe
+    id="blue-frame"
+    src=""
+    allow="fullscreen"
+    sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
+  ></iframe>
+</div>
+
+<script>
+(function () {
+  const btn     = document.getElementById('blue-btn');
+  const overlay = document.getElementById('blue-overlay');
+  const iframe  = document.getElementById('blue-frame');
+  let loaded    = false;
+
+  function openBlue() {
+    // Load proxy.html into the iframe the first time
+    if (!loaded) {
+      iframe.src = '/proxy.html';
+      loaded = true;
+    }
+
+    // Show overlay + fade in
+    overlay.classList.add('active');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => overlay.classList.add('visible'));
+    });
+
+    // Tell proxy.html it's running inside our overlay (so it shows close btn)
+    iframe.addEventListener('load', () => {
+      try { iframe.contentWindow.postMessage('blue:overlay', '*'); } catch (e) {}
+    }, { once: true });
+  }
+
+  function closeBlue() {
+    overlay.classList.remove('visible');
+    setTimeout(() => overlay.classList.remove('active'), 200);
+  }
+
+  btn.addEventListener('click', openBlue);
+
+  // Listen for close message from proxy.html
+  window.addEventListener('message', (e) => {
+    if (e.data === 'blue:close') closeBlue();
+  });
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════ -->
 	<body>
 		<header>
 			<div id="logo"></div>
